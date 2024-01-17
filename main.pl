@@ -34,3 +34,33 @@ isValidMove(Cur, Nxt) :-
     (Nxt =:= Cur + 2*LevelCur + 1, LevelDiff = 2); % abajo a la izquierda
     (Nxt =:= Cur + 2*LevelCur + 3, LevelDiff = 2) % abajo a la derecha
 ).
+
+% Predicate to find all valid moves
+allValidMoves(Cur, ValidMoves) :-
+    findall(Nxt, isValidMove(Cur, Nxt), ValidMoves).
+
+% Predicate to check if the puzzle is solved
+isSolved([], IsOneFilled) :- IsOneFilled.
+isSolved([Cur | Rest],IsOneFilled) :-
+    (
+        Cur = false, isSolved(Rest,IsOneFilled)
+    )
+    ;
+    (
+        Cur = true, IsOneFilled = false, isSolved(Rest,true)
+    ).
+
+    
+%canBeSolved([],_):- false.
+%canBeSolved([CurPos, NxtPos], Puzzle) :-
+    %allValidMoves(CurPos, ValidMoves),
+    %(
+        %canBeSolved(ValidMoves)
+        %;
+        %canBeSolved(NxtPos)
+    %).
+
+
+
+
+
