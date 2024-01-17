@@ -1,6 +1,7 @@
 
+% initializers
 triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
-isEmpty([false,true,false,false,false,false,false,false,false,false,false,false,false,false,false]).
+puzzle([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
 
 % Predicate to check the difference between two numbers levels
 isLevelDifference(Cur, Nxt, Diff) :-
@@ -37,6 +38,8 @@ isValidMove(Cur, Nxt,Puzzle) :-
     (Nxt =:= Cur + 2*LevelCur + 3, LevelDiff = 2) % abajo a la derecha
 ).
 
+% check if an element is an intermediate when moving piece from A to B. 
+% If we eliminate C when making a move this function will return the C number
 isIntermediate(Cur, Nxt, Inter) :- 
     triangleLevel(Levels),  
     nth1(Cur, Levels, LevelCur),  
@@ -50,6 +53,7 @@ isIntermediate(Cur, Nxt, Inter) :-
     (Nxt =:= Cur + 2*LevelCur + 3, LevelDiff = 2, Calc is Cur + LevelCur + 1, Inter = Calc) % abajo a la derecha
 ).
 
+% modify any array at a given index
 modifyAtIndex([], _, _, []).
 modifyAtIndex([_|Rest], 1, Value, [Value|Rest]).
 modifyAtIndex([X|Rest], Index, Value, [X|ResTail]) :-
@@ -57,7 +61,7 @@ modifyAtIndex([X|Rest], Index, Value, [X|ResTail]) :-
     NewIndex is Index - 1,
     modifyAtIndex(Rest, NewIndex, Value, ResTail).
 
-
+% predicate to check if given a movement and a puzzle the nxt puzzle is created correctly
 isValidTransition(Puzzle, NxtPuzzle,From,To) :-
     isValidMove(From,To,Puzzle),
     isIntermediate(From,To,Inter),
@@ -66,16 +70,18 @@ isValidTransition(Puzzle, NxtPuzzle,From,To) :-
     modifyAtIndex(FirstChange, To, false, SecondChange),
     modifyAtIndex(SecondChange, Inter, true, NxtPuzzle).
 
+%aux predicate to make all the moves given an array of moves
 makeAllMoves(_, [], []).
 makeAllMoves(Puzzle, [(From,To)|Others], [NxtRes | Final]) :-
     isValidTransition(Puzzle, NxtRes, From,To),
     makeAllMoves(NxtRes,Others,Final).
 
-main(Final) :- 
-    isEmpty(Puzzle),
+resolver(X) :- 
+    puzzle(Puzzle),
+    modifyAtIndex(Puzzle,X,true,StartPuzzle),
     length(AllMoves, 13),
-    makeAllMoves(Puzzle, AllMoves, Final),
-    printList(Final).
+    makeAllMoves(StartPuzzle, AllMoves, _),
+    write(AllMoves).
 
 
 
