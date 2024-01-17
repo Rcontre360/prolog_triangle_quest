@@ -1,6 +1,11 @@
 % Define the triangle levels
 triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
-isEmpty([false,false,false,false,true,false,false,false,false,false,false,false,false,false,false]).
+isEmpty([false,true,false,false,false,false,false,false,false,false,false,false,false,false,false]).
+
+printList([]).
+printList([H|T]) :-
+    write(H), nl,  % Write the current element and a newline
+    printList(T). % Recursively print the rest of the list
 
 modifyAtIndex([], _, _, []).
 modifyAtIndex([_|Rest], 1, Value, [Value|Rest]).
@@ -29,10 +34,9 @@ isLevelDifference(Cur, Nxt, Diff) :-
     ).
 
 % Predicate to check if a move from Cur to Nxt is valid
-isValidMove(Cur, Nxt) :- 
-    %isEmpty(IsEmpty),  
-    %nth1(Cur, IsEmpty, false),
-    %nth1(Nxt, IsEmpty, true),
+isValidMove(Cur, Nxt,Puzzle) :- 
+    nth1(Cur, Puzzle, false),
+    nth1(Nxt, Puzzle, true),
 
     triangleLevel(Levels),  
     nth1(Cur, Levels, LevelCur),  
@@ -60,8 +64,8 @@ isIntermediate(Cur, Nxt, Inter) :-
 ).
 
 % Predicate to find all valid moves
-allValidMoves(Cur, ValidMoves) :-
-    findall(Nxt, isValidMove(Cur, Nxt), ValidMoves).
+allValidMoves(Cur, ValidMoves,Puzzle) :-
+    findall(Nxt, isValidMove(Cur, Nxt, Puzzle), ValidMoves).
 
 % Predicate to check if the puzzle is solved
 isSolved([], IsOneFilled) :- IsOneFilled.
@@ -74,25 +78,48 @@ isSolved([Cur | Rest],IsOneFilled) :-
         Cur = true, IsOneFilled = false, isSolved(Rest,true)
     ).
 
-move(From,To, Puzzle, NxtPuzzle) :-
-    isValidMove(From,To),
+isValidTransition(Puzzle, NxtPuzzle,From,To) :-
+    isValidMove(From,To,Puzzle),
     isIntermediate(From,To,Inter),
     modifyAtIndex(Puzzle, From, true, FirstChange),
     modifyAtIndex(FirstChange, To, false, SecondChange),
     modifyAtIndex(SecondChange, Inter, true, NxtPuzzle).
+
+isSolutionInTransitionList([],_) :- false.
+isSolutionInTransitionList([CurTransition | Transitions],Movements) :-
+    canBeSolved(CurTransition,Movements)
+    ;
+    isSolutionInTransitionList(Transitions,Movements).
     
-canBeSolved([],_):- false.
-canBeSolved([CurPos, NxtPos], Puzzle) :-
-    allValidMoves(CurPos, ValidMoves),
-    modifyAtIndex(Puzzle, CurPos, true, NxtPuzzle),
+canBeSolved(Puzzle,[]) :- isSolved(Puzzle,false).
+canBeSolved(Puzzle,Movements) :-
+    isSolved(Puzzle, false)
+    ;
     (
-        canBeSolved(ValidMoves,NxtPuzzle)
-        ;
-        canBeSolved(NxtPos, NxtPuzzle)
+    areAllValidTransitions(Puzzle,Transitions, Movements),
+    isSolutionInTransitionList(Transitions,Movements)
     ).
 
-main(From,To,X) :-
+areAllValidTransitions(Puzzle, Transitions, Movements) :-
+    findall((From,To, Solution), isValidTransition(Puzzle, Solution, From, To) ,Transitions),
+    areMovementsCorrect(Movements,Transitions).
+
+areMovementsCorrect([],[]).
+areMovementsCorrect(_,[]) :- false.
+areMovementsCorrect([],_) :- false.
+areMovementsCorrect([CurMov|NxtMoves],[CurTrans|NxtTrans]) :- 
+    nth1(0, CurTrans, FromTrans),  
+    nth1(1, CurTrans, ToTrans),  
+
+    nth1(0, CurMov, FromMov),  
+    nth1(1, CurMov, ToMov),  
+
+    FromTrans = FromMov,
+    ToTrans = ToMov,
+    areMovementsCorrect(NxtMoves, NxtTrans).
+    
+
+main(X,Y) :-
     isEmpty(Puzzle),
-    move(From,To,Puzzle,X).
-
-
+    areAllValidTransitions(Puzzle, X,Y).
+    %canBeSolved(Puzzle).
