@@ -7,6 +7,20 @@ printList([H|T]) :-
     write(H), nl,  % Write the current element and a newline
     printList(T). % Recursively print the rest of the list
 
+mapToTuples([], _, []).
+mapToTuples([X | Rest], Element, [(Element,X) | Tuples]) :-
+    mapToTuples(Rest, Element, Tuples).
+
+flatten([], []).
+flatten([H|T], Flat) :-
+    is_list(H),
+    flatten(H, FlatH),
+    flatten(T, FlatT),
+    append(FlatH, FlatT, Flat).
+flatten([H|T], [H|FlatT]) :-
+    \+ is_list(H),
+    flatten(T, FlatT).
+
 modifyAtIndex([], _, _, []).
 modifyAtIndex([_|Rest], 1, Value, [Value|Rest]).
 modifyAtIndex([X|Rest], Index, Value, [X|ResTail]) :-
@@ -35,8 +49,11 @@ isLevelDifference(Cur, Nxt, Diff) :-
 
 % Predicate to check if a move from Cur to Nxt is valid
 isValidMove(Cur, Nxt,Puzzle) :- 
+    isIntermediate(Cur,Nxt,Inter),
+
     nth1(Cur, Puzzle, false),
     nth1(Nxt, Puzzle, true),
+    nth1(Inter, Puzzle, false), %check if intermediate is full
 
     triangleLevel(Levels),  
     nth1(Cur, Levels, LevelCur),  
@@ -64,62 +81,98 @@ isIntermediate(Cur, Nxt, Inter) :-
 ).
 
 % Predicate to find all valid moves
-allValidMoves(Cur, ValidMoves,Puzzle) :-
+allValidMoves(Puzzle, Cur, ValidMoves) :-
     findall(Nxt, isValidMove(Cur, Nxt, Puzzle), ValidMoves).
 
 % Predicate to check if the puzzle is solved
 isSolved([], IsOneFilled) :- IsOneFilled.
 isSolved([Cur | Rest],IsOneFilled) :-
     (
-        Cur = false, isSolved(Rest,IsOneFilled)
+        Cur = true, isSolved(Rest,IsOneFilled)
     )
     ;
     (
-        Cur = true, IsOneFilled = false, isSolved(Rest,true)
+        Cur = false, IsOneFilled = false, isSolved(Rest,true)
     ).
 
 isValidTransition(Puzzle, NxtPuzzle,From,To) :-
     isValidMove(From,To,Puzzle),
     isIntermediate(From,To,Inter),
+
     modifyAtIndex(Puzzle, From, true, FirstChange),
     modifyAtIndex(FirstChange, To, false, SecondChange),
     modifyAtIndex(SecondChange, Inter, true, NxtPuzzle).
 
 isSolutionInTransitionList([],_) :- false.
-isSolutionInTransitionList([CurTransition | Transitions],Movements) :-
-    canBeSolved(CurTransition,Movements)
-    ;
-    isSolutionInTransitionList(Transitions,Movements).
+isSolutionInTransitionList([(_,_,CurTransition) | Transitions],Count) :-
+    Count > 1,
+    NxtCount is Count - 1,
+    (
+        canBeSolved(CurTransition,NxtCount)
+        ;
+        isSolutionInTransitionList(Transitions,Count)
+    ).
     
 canBeSolved(Puzzle,[]) :- isSolved(Puzzle,false).
-canBeSolved(Puzzle,Movements) :-
-    isSolved(Puzzle, false)
-    ;
+canBeSolved(Puzzle,Count) :-
+    Count>=1,
     (
-    areAllValidTransitions(Puzzle,Transitions, Movements),
-    isSolutionInTransitionList(Transitions,Movements)
+        isSolved(Puzzle, false)
+        ;
+        (
+        areAllValidTransitions(Puzzle,Transitions),
+        length(Transitions,Length),
+        write("\n"),
+        write(Length),
+        write("\n"),
+        isSolutionInTransitionList(Transitions,Count)
+        )
     ).
 
-areAllValidTransitions(Puzzle, Transitions, Movements) :-
-    findall((From,To, Solution), isValidTransition(Puzzle, Solution, From, To) ,Transitions),
-    areMovementsCorrect(Movements,Transitions).
+transitionFromMovement(_,[],[]).
+transitionFromMovement(Puzzle,[(From,To)|NxtMoves],[(From,To,CurTran)|NxtTran]):-
+    isValidTransition(Puzzle,CurTran,From,To),
+    transitionFromMovement(Puzzle,NxtMoves,NxtTran).
 
-areMovementsCorrect([],[]).
-areMovementsCorrect(_,[]) :- false.
-areMovementsCorrect([],_) :- false.
-areMovementsCorrect([CurMov|NxtMoves],[CurTrans|NxtTrans]) :- 
-    nth1(0, CurTrans, FromTrans),  
-    nth1(1, CurTrans, ToTrans),  
+areAllValidTransitions(Puzzle, Transitions) :-
+    areValidMovements(Puzzle, Movements),
+    transitionFromMovement(Puzzle,Movements,Transitions).
+    %findall((From,To, Solution), isValidTransition(Puzzle, Solution, From, To) ,Transitions).
 
-    nth1(0, CurMov, FromMov),  
-    nth1(1, CurMov, ToMov),  
+areValidMovements(Puzzle,Movements):-
+    isListValidMovements(Puzzle,1,ListMov),
+    flatten(ListMov,Movements).
 
-    FromTrans = FromMov,
-    ToTrans = ToMov,
-    areMovementsCorrect(NxtMoves, NxtTrans).
+isListValidMovements(_, 16, []).
+isListValidMovements(Puzzle, From, [MappedMov | NxtOnes]) :-
+    From =< 15,
+    allValidMoves(Puzzle, From, Movements),
+    mapToTuples(Movements, From,MappedMov),
+    NxtFrom is From + 1,
+    isListValidMovements(Puzzle, NxtFrom, NxtOnes).
+
+main(Num) :-
+    %tell('./pinga.txt'),
+    isEmpty(Puzzle),
+    canBeSolved(Puzzle,Num).
+    %told.
+
+% Define a predicate that extracts the first and second elements from a tuple
+extractFirstAndSecond((First, Second, _), (First, Second)).
+
+% Define a predicate to process the list of tuples
+getMovements([], []).
+getMovements([Tuple | Rest], [(First, Second) | Result]) :-
+    extractFirstAndSecond(Tuple, (First, Second)),
+    getMovements(Rest, Result).
+
     
 
-main(X,Y) :-
-    isEmpty(Puzzle),
-    areAllValidTransitions(Puzzle, X,Y).
-    %canBeSolved(Puzzle).
+
+
+
+
+
+
+
+
