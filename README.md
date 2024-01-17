@@ -27,9 +27,9 @@
     - Si se encuentra solución se informa. Sino termina.
 - Funciones
     - Nuestras
-        - is_valid_move(cur, nxt, …): checks if a move can be made
-        - is_valid_path(cur, …): checks if we can find a solution from the current element
-        - is_solved(matrix): checks if all elements minus one were removed
+        - is_valid_move(cur, nxt, …): Valida si un movimiento puede hacerse
+        - is_valid_path(cur, …): Valida si podemos encontrar un camino para el elemento actual
+        - is_solved(matrix): Valida si queda un solo elemento en la matriz
         - …
     - Problema
         - resolver(X): Calcular la secuencia de movimientos necesarias para que quede sólo una ficha en el tablero a partir de
