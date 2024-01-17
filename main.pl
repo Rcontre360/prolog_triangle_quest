@@ -1,69 +1,36 @@
-triangle_level([1, 2, 2, 3, 3, 3, 4, 4, 4, 4,5,5,5,5,5])
-is_empty([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false])
+% Define the triangle levels
+triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
+isEmpty([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
 
-is_valid_move(cur, nxt) :- 
-    nxt == cur - triangle_level[cur - 1] 
-    ;
-    nxt == cur - triangle_level[cur - 1] + 1
-    ;
-    nxt == cur - 1
-    ;
-    nxt == cur + 1
-    ;
-    nxt == cur + triangle_level[cur - 1]
-    ;
-    nxt == cur + triangle_level[cur - 1] + 1
-
-
-is_solved([], is_one_active) :- is_one_active
-is_solved([cur | nxt], is_one_active) :- 
+% Predicate to check the difference between two numbers levels
+levelDifference(Cur, Nxt, Diff) :-
+    triangleLevel(Levels),  
+    nth1(Cur, Levels, LevelCur),  
+    nth1(Nxt, Levels, LevelNxt),  
     (
-        cur == false,
-        is_solved(nxt,is_one_active)
-    )
-    ;
-    (
-        cur == true,
-        is_one_active == false,
-        is_solved(nxt,true)
-    )
-    
-is_valid_path(cur, is_empty_arr) :-
-    is_solved(is_empty_arr)
-    ;
-    (
-        is_valid_path(cur - triangle_level[cur]),
-    )
-    ;
-    (
-        is_valid_path(cur - triangle_level[cur] + 1),
-    )
-    ;
-    (
-        is_valid_path(cur - triangle_level[cur] + 1),
-    )
-    ;
-    (
-        is_valid_path(nxt == cur - 1),
-    )
-    ;
-    (
-        is_valid_path(nxt == cur + 1),
-    )
-    ;
-    (
-        is_valid_path(cur + triangle_level[cur]),
-    )
-    ;
-    (
-        is_valid_path(cur + triangle_level[cur] + 1)
-    )
+        LevelCur >= LevelNxt, 
+        CurDiff is LevelCur - LevelNxt,
+        Diff = CurDiff
+        ;
+        LevelCur < LevelNxt, 
+        CurDiff is LevelNxt - LevelCur,
+        Diff = CurDiff
+    ).
 
+% Predicate to check if a move from Cur to Nxt is valid
+isValidMove(Cur, Nxt) :- 
+    %isEmpty(IsEmpty),  
+    %nth1(Cur, IsEmpty, false),
+    %nth1(Nxt, IsEmpty, true),
 
-
-
-
-
-
-
-
+    triangleLevel(Levels),  
+    nth1(Cur, Levels, LevelCur),  
+    levelDifference(Cur, Nxt, LevelDiff),  
+(
+    (Nxt =:= Cur - 2*LevelCur + 1, LevelDiff = 2);  %arriba a la izq
+    (Nxt =:= Cur - 2*LevelCur + 3, LevelDiff = 2); %arriba a la derecha
+    (Nxt =:= Cur - 2, LevelDiff = 0); % izquierda
+    (Nxt =:= Cur + 2, LevelDiff = 0); % derecha
+    (Nxt =:= Cur + 2*LevelCur + 1, LevelDiff = 2); % abajo a la izquierda
+    (Nxt =:= Cur + 2*LevelCur + 3, LevelDiff = 2) % abajo a la derecha
+).
