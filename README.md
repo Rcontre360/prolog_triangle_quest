@@ -30,10 +30,11 @@
         - is_valid_move(cur, nxt, …): Valida si un movimiento puede hacerse
         - is_valid_path(cur, …): Valida si podemos encontrar un camino para el elemento actual
         - is_solved(matrix): Valida si queda un solo elemento en la matriz
-        - …
+        - show_board(...) Muestra el tablero
     - Problema
         - resolver(X): Calcular la secuencia de movimientos necesarias para que quede sólo una ficha en el tablero a partir de
         una configuración inicial.
+       -
         - jugar(X): Permitir que el usuario resuelva interactivamente el juego.
 - Estructuras de datos
     
