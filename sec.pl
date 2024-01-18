@@ -1,4 +1,3 @@
-
 % initializers
 triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
 puzzle([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
@@ -83,9 +82,39 @@ resolver(X) :-
     makeAllMoves(StartPuzzle, AllMoves, _),
     write(AllMoves).
 
+jugar(X):-
+    puzzle(Puzzle),
+    modifyAtIndex(Puzzle,X,true,NxtPuzzle).
+    showTriangle(Puzzle) %necesitamos mostrar la tabla cada vez que se acutalice
+    
+jugar((From, To)):-
+    %puzzle(Puzzle), %¿Debo acceder al arreglo de booleanos a los Levels?
+    isValidTransition(Puzzle, NxtPuzzle, From, To),
+    modifyAtIndex() %quiero modificar el tablero dado que es válido el movimiento, cambiando la ficha del intermedio por vacío
+    %mostrar tabla
 
+%no me funciona, quiero acceder al tablero y para ello lo creo con puzzle() y voy manipulandolo, mostrando whitespaces y además separando por fila (en nuestro caso niveles)
+showTriangle(X):-
+    puzzle(Triangle),
+    show(Triangle).
 
+show ([]).
+show([Top | Tail]):- %el show general lo que hace es que según el tablero ver las longitudes, quizás deberíamos trabajarlo con lso niveles en vez de los bool
+    length(Tail, Size), nl,
+    white(Size),
+    showR(Top),
+    show(Tail).
 
+showR([]) .%mostrar nivel a nivel funciona bien o sea me muestra el arreglo separado por espacios
+showR([Cur | Rest]):-
+    write(Cur),
+    write('  '),
+    showR(Rest).
 
+white(0). %para los espacios en blanco para que quede como pirámide
+white(Size):-
+    write('        '), 
+    Size_ is Size - 1, 
+    white (Size_).
 
 
