@@ -2,6 +2,7 @@
 triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
 puzzle([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
 
+
 % Predicate to check the difference between two numbers levels
 isLevelDifference(Cur, Nxt, Diff) :-
     triangleLevel(Levels),  
@@ -84,37 +85,72 @@ resolver(X) :-
 
 jugar(X):-
     puzzle(Puzzle),
-    modifyAtIndex(Puzzle,X,true,NxtPuzzle).
-    showTriangle(Puzzle) %necesitamos mostrar la tabla cada vez que se acutalice
+    modifyAtIndex(Puzzle, X, true, First),
+    printList(First). % muestra la tabla luego eliminar la casilla deseada
+
     
-jugar((From, To)):-
-    %puzzle(Puzzle), %¿Debo acceder al arreglo de booleanos a los Levels?
+jugar([From, To]):-
+    puzzle(Puzzle), %¿Debo acceder al arreglo de booleanos a los Levels?
     isValidTransition(Puzzle, NxtPuzzle, From, To),
-    modifyAtIndex() %quiero modificar el tablero dado que es válido el movimiento, cambiando la ficha del intermedio por vacío
-    %mostrar tabla
+    printList(NxtPuzzle).
 
-%no me funciona, quiero acceder al tablero y para ello lo creo con puzzle() y voy manipulandolo, mostrando whitespaces y además separando por fila (en nuestro caso niveles)
-showTriangle(X):-
-    puzzle(Triangle),
-    show(Triangle).
+/*printList([H|T]):-
+      printList_([H|T],1).
 
-show ([]).
-show([Top | Tail]):- %el show general lo que hace es que según el tablero ver las longitudes, quizás deberíamos trabajarlo con lso niveles en vez de los bool
-    length(Tail, Size), nl,
-    white(Size),
-    showR(Top),
-    show(Tail).
+printList_([],_).
+printList_([H|T], Count) :-
+    printLvl([H|T], Count,1),
+    Count_ is Count + 1,
+    printList_(T,Count_).
+ %   write(H), nl,  % Write the current element and a newline
+ %   printList(T). % Recursively print the rest of the list
 
-showR([]) .%mostrar nivel a nivel funciona bien o sea me muestra el arreglo separado por espacios
-showR([Cur | Rest]):-
-    write(Cur),
-    write('  '),
-    showR(Rest).
+printLvl([],_,_).
+printLvl([H|T], 0, Index):-!.
+printLvl(Puzzle, Count, Index):-
+    Index =< Count,!,
+    Index_ is Index +1,
+    Count_ is Count -1,
+    write('hola '),
+    nth1(Index, Puzzle, ToPrint),
+    write(ToPrint),
+    printLvl(Puzzle,Count_, Index_ ).*/
 
-white(0). %para los espacios en blanco para que quede como pirámide
-white(Size):-
-    write('        '), 
-    Size_ is Size - 1, 
-    white (Size_).
+printList(List) :-
+    length(List, Length),
+    printList_(List, Length, 1).
+
+printList_([], _, _).
+printList_([H|T], Length, Level) :-
+    printSpaces(Length, Level),
+    printLvl(H),
+    nl,
+    NextLevel is Level + 1,
+    printList_(T, Length, NextLevel).
+
+printSpaces(Length, Level) :-
+    Spaces is Length - Level,
+    printSpaces_(Spaces).
+
+printSpaces_(Spaces) :-
+    Spaces > 0,
+    write(' '),
+    Spaces_ is Spaces - 1,
+    printSpaces_(Spaces_).
+printSpaces_(0).
+
+printLvl([]).
+printLvl([H|T]) :-
+    write(H),
+    printLvl(T).
+
+% Ejemplo de uso
+ejemplo :-
+    Puzzle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    printList(Puzzle),
+    nl.
+
+
+
 
 
