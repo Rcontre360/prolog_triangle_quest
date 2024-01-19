@@ -1,6 +1,9 @@
 % initializers
 triangleLevel([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5]).
 puzzle([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
+:-dynamic(puzzleGame/1).
+puzzleGame([false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]).
+
 
 
 % Predicate to check the difference between two numbers levels
@@ -84,65 +87,38 @@ resolver(X) :-
     write(AllMoves).
 
 jugar(X):-
-    puzzle(Puzzle),
-    modifyAtIndex(Puzzle, X, true, First),
-    printList(First). % muestra la tabla luego eliminar la casilla deseada
-
+    retract(puzzleGame(Puzzle)), %elimina el Puzzle actual
+    modifyAtIndex(Puzzle, X, true, First), % cambiar la casilla X por vacío, en nuestro caso true
+    assertz(puzzleGame(First)), %crea un nuevo Puzzle con las modificaciones respectivas
+    printList(First,1,15). % muestra la tabla luego eliminar la casilla deseada
     
-jugar([From, To]):-
-    puzzle(Puzzle), %¿Debo acceder al arreglo de booleanos a los Levels?
+jugar(From, To):-
+    isValidMove(From,To,Puzzle),
+    retract(puzzleGame(Puzzle)),%elimina el Puzzle actual
     isValidTransition(Puzzle, NxtPuzzle, From, To),
-    printList(NxtPuzzle).
+    assertz(puzzleGame(NxtPuzzle)),%crea un nuevo Puzzle con las modificaciones respectivas
+    printList(NxtPuzzle,1,15).
 
-/*printList([H|T]):-
-      printList_([H|T],1).
+countTrue([], 0).
+countTrue([false|Tail], Count) :-
+    countTrue(Tail, RestCount),
+    Count is RestCount + 1.
+countTrue([true|Tail], Count) :-
+    countTrue(Tail, Count).
 
-printList_([],_).
-printList_([H|T], Count) :-
-    printLvl([H|T], Count,1),
-    Count_ is Count + 1,
-    printList_(T,Count_).
- %   write(H), nl,  % Write the current element and a newline
- %   printList(T). % Recursively print the rest of the list
-
-printLvl([],_,_).
-printLvl([H|T], 0, Index):-!.
-printLvl(Puzzle, Count, Index):-
-    Index =< Count,!,
-    Index_ is Index +1,
-    Count_ is Count -1,
-    write('hola '),
-    nth1(Index, Puzzle, ToPrint),
-    write(ToPrint),
-    printLvl(Puzzle,Count_, Index_ ).
-
-printList(List) :-
-    length(List, Length),
-    printList_(List, Length, 1).
-
-printList_([], _, _).
-printList_([H|T], Length, Level) :-
-    printSpaces(Length, Level),
-    printLvl(H),
-    nl,
-    NextLevel is Level + 1,
-    printList_(T, Length, NextLevel).
-
-printSpaces(Length, Level) :-
-    Spaces is Length - Level,
-    printSpaces_(Spaces).
-
-printSpaces_(Spaces) :-
-    Spaces > 0,
-    write(' '),
-    Spaces_ is Spaces - 1,
-    printSpaces_(Spaces_).
-printSpaces_(0).
-
-printLvl([]).
-printLvl([H|T]) :-
-    write(H),
-    printLvl(T).*/
+ surrender :-
+    writeln('Te rendiste.'),
+    puzzleGame(Puzzle),
+    countTrue(Puzzle, Cont),
+    (   Cont > 1
+    ->Steps is Cont - 1,
+        length(AllMoves, Steps),
+        makeAllMoves(Puzzle, AllMoves, _),
+        writeln('Solución:')
+        writeln(AllMoves);   
+       % writeln('Solución Imposible'),
+       % AllMoves = []
+    ).
 
 printLine([],_).
 printLine(_, 0) :- write("\n").
@@ -165,14 +141,3 @@ printList(Puzzle,Count,Limit) :-
     getRest(Puzzle,Count,NxtPuzzle),
     NxtCount is Count+1,
     printList(NxtPuzzle,NxtCount,Limit).
-
-% Ejemplo de uso
-ejemplo :-
-    Puzzle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    printList(Puzzle,1,15),
-    nl.
-
-
-
-
-
