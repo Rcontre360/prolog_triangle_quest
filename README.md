@@ -36,9 +36,9 @@
         - isValidTransition(Puzzle,NxtPuzzle, From, To): Chequea que si dado un elemento y un Puzzle el NxtPuzzle (Siguiente Puzzle) sea correctamente creado.
         - modifyAtIndex([], X, Y, []): Dado un índice 'X' se modificará el valor dentro del mismo por el valor sumistrado en la entrara 'Y'.
         - makeAllMoves(Puzzle, [], []) Predicado auxiliar para hacer todos los movimientos posibles dado un arreglo de movimientos.
-        - (): Muestra el tablero
-        - (): Muestra cada nivel
-        - (): Muesrta los espacios en blanco entre casillas y niveles
+        - printList(): Muestra el tablero
+        - getRest(): Obtiene cada nivel del triángulo
+        - printLine(): Muesrta los espacios en blanco entre casillas y niveles
     - Problema:
         - resolver(X): Calcular la secuencia de movimientos necesarias para que quede sólo una ficha en el tablero a partir de
         una configuración inicial.
