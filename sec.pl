@@ -110,14 +110,14 @@ countTrue([true|Tail], Count) :-
     writeln('Te rendiste.'),
     puzzleGame(Puzzle),
     countTrue(Puzzle, Cont),
-    (   Cont > 1
-    ->Steps is Cont - 1,
+    ( ( Cont > 1,
+        Steps is Cont - 1,
         length(AllMoves, Steps),
         makeAllMoves(Puzzle, AllMoves, _),
-        writeln('Solución:')
-        writeln(AllMoves);   
-       % writeln('Solución Imposible'),
-       % AllMoves = []
+        writeln('Solución:'),
+        writeln(AllMoves));   
+        writeln('Solución Imposible'),
+        AllMoves = []
     ).
 
 printLine([],_).
