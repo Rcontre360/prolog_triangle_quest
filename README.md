@@ -45,7 +45,7 @@
          Seguidamente el jugador deberá indicar en todo momento (Desde-Hasta) dónde desea moverse, para ello deberá usar el predicado *jugar(From, To).*, y así seguidamente hasta encontrar una solución. El juego en 
          cada movimiento le irá mostrando al jugador el estado actual de su tablero, de la siguiente forma:
 
-        Ejemplo:
+        Ejemplo:  
         false    
         false false    
         false false false    
