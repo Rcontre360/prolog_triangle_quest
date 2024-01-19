@@ -114,7 +114,7 @@ printLvl(Puzzle, Count, Index):-
     write('hola '),
     nth1(Index, Puzzle, ToPrint),
     write(ToPrint),
-    printLvl(Puzzle,Count_, Index_ ).*/
+    printLvl(Puzzle,Count_, Index_ ).
 
 printList(List) :-
     length(List, Length),
@@ -142,12 +142,34 @@ printSpaces_(0).
 printLvl([]).
 printLvl([H|T]) :-
     write(H),
-    printLvl(T).
+    printLvl(T).*/
+
+printLine([],_).
+printLine(_, 0) :- write("\n").
+printLine([Cur|List],Count) :-
+   write(Cur),
+   write(" "),
+   NxtCount is Count-1,
+   printLine(List,NxtCount).
+
+getRest([], _, []).
+getRest(Rest, 0, Rest).
+getRest([_|Rest], Remove, Result) :-
+    NxtRemove is Remove - 1,
+    getRest(Rest,NxtRemove,Result). 
+
+printList(Puzzle,Count,Limit) :-
+    Count >= Limit
+    ;   
+    printLine(Puzzle,Count),
+    getRest(Puzzle,Count,NxtPuzzle),
+    NxtCount is Count+1,
+    printList(NxtPuzzle,NxtCount,Limit).
 
 % Ejemplo de uso
 ejemplo :-
     Puzzle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    printList(Puzzle),
+    printList(Puzzle,1,15),
     nl.
 
 
